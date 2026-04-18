@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
 from socket import *
-
-from Cython.Compiler.Naming import enc_scope_cname
-from cryptography.fernet import Fernet
+import OTP
 
 
 server_name = input("Enter your server's ip: ")
@@ -16,14 +14,13 @@ except FileNotFoundError:
     enc_key = input("Enter your encryption key: ")
 client_socket = socket(AF_INET,SOCK_STREAM)
 client_socket.connect((server_name,server_port))
-fer = Fernet(enc_key)
 bCloseConnection = False
 
 try:
     while not bCloseConnection:
         message = input("Please enter your message: ")
-        client_socket.send(fer.encrypt(message.encode()))
-        server_message = fer.decrypt(client_socket.recv(2048)).decode()
+        client_socket.send(OTP.encrypt(message, enc_key).encode())
+        server_message = OTP.decrypt(client_socket.recv(2048).decode(), enc_key)
 
         print("From server: ", server_message)
         if message == "bye":
